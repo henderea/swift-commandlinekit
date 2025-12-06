@@ -156,30 +156,41 @@ public class LineReader {
   /// of the line and reads the input from the user, returning it as a string. The method can
   /// throw an error if the terminal cannot be written to.
   public func readLine(prompt: String,
+                       promptPrefix: String? = nil,
                        maxCount: Int? = nil,
                        strippingNewline: Bool = true,
                        promptProperties: TextProperties = TextProperties.none,
+                       promptPrefixProperties: TextProperties = TextProperties.none,
                        readProperties: TextProperties = TextProperties.none,
                        parenProperties: TextProperties = TextProperties.none) throws -> String {
     tempBuf = nil
     if self.termSupported {
       return try self.readLineSupported(prompt: prompt,
+                                        promptPrefix: promptPrefix,
                                         maxCount: maxCount,
                                         strippingNewline: strippingNewline,
                                         promptProperties: promptProperties,
+                                        promptPrefixProperties: promptPrefixProperties,
                                         readProperties: readProperties,
                                         parenProperties: parenProperties)
     } else {
       return try self.readLineUnsupported(prompt: prompt,
+                                          promptPrefix: promptPrefix,
                                           maxCount: maxCount,
                                           strippingNewline: strippingNewline)
     }
   }
 
   private func readLineUnsupported(prompt: String,
+                                   promptPrefix: String?,
                                    maxCount: Int?,
                                    strippingNewline: Bool) throws -> String {
-    Swift.print(prompt, terminator: "")
+    let fullPrompt = if let promptPrefix {
+      "\(promptPrefix) \(prompt)"
+    } else {
+      prompt
+    }
+    Swift.print(fullPrompt, terminator: "")
     if let line = Swift.readLine(strippingNewline: strippingNewline) {
       return maxCount != nil ? String(line.prefix(maxCount!)) : line
     } else {
@@ -188,9 +199,11 @@ public class LineReader {
   }
 
   private func readLineSupported(prompt: String,
+                                 promptPrefix: String?,
                                  maxCount: Int?,
                                  strippingNewline: Bool,
                                  promptProperties: TextProperties,
+                                 promptPrefixProperties: TextProperties,
                                  readProperties: TextProperties,
                                  parenProperties: TextProperties) throws -> String {
     var line: String = ""
@@ -201,8 +214,18 @@ public class LineReader {
       if let col = self.cursorColumn, col > 1 {
         try self.output(text: "\n" + AnsiCodes.setCursorColumn(0))
       }
-      try self.output(text: promptProperties.apply(to: prompt))
-      let editState = EditState(prompt: prompt,
+      let fullText = if let promptPrefix {
+        "\(promptPrefixProperties.apply(to: promptPrefix)) \(promptProperties.apply(to: prompt))"
+      } else {
+        promptProperties.apply(to: prompt)
+      }
+      let fullPrompt = if let promptPrefix {
+        "\(promptPrefix) \(prompt)"
+      } else {
+        prompt
+      }
+      try self.output(text: fullText)
+      let editState = EditState(prompt: fullPrompt,
                                 maxCount: maxCount,
                                 promptProperties: promptProperties,
                                 readProperties: readProperties,
