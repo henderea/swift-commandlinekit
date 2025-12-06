@@ -219,15 +219,12 @@ public class LineReader {
       } else {
         promptProperties.apply(to: prompt)
       }
-      let fullPrompt = if let promptPrefix {
-        "\(promptPrefix) \(prompt)"
-      } else {
-        prompt
-      }
       try self.output(text: fullText)
-      let editState = EditState(prompt: fullPrompt,
+      let editState = EditState(prompt: prompt,
+                                promptPrefix: promptPrefix,
                                 maxCount: maxCount,
                                 promptProperties: promptProperties,
+                                promptPrefixProperties: promptPrefixProperties,
                                 readProperties: readProperties,
                                 parenProperties: parenProperties)
       while true {
@@ -554,7 +551,7 @@ public class LineReader {
     let cursorRows = cursorWidth / numColumns
     let cursorCols = cursorWidth % numColumns
     var commandBuf = AnsiCodes.beginningOfLine +
-                     editState.promptProperties.apply(to: editState.prompt)
+                     editState.fullText
     if decorate, let idx = editState.matchingParen() {
       var fst = editState.buffer.index(before: editState.location)
       var snd = idx
@@ -707,7 +704,7 @@ public class LineReader {
           let (hint, properties) = hintsCallback(editState.buffer) else {
       return ""
     }
-    let currentLineLength = editState.prompt.count + editState.buffer.count
+    let currentLineLength = editState.fullPrompt.count + editState.buffer.count
     if hint.count + currentLineLength > self.numColumns {
       return ""
     } else {

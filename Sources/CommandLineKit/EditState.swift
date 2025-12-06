@@ -38,7 +38,11 @@ import Foundation
 
 internal class EditState {
   let prompt: String
+  let promptPrefix: String?
+  let fullPrompt: String
   let promptProperties: TextProperties
+  let promptPrefixProperties: TextProperties
+  let fullText: String
   let readProperties: TextProperties
   let parenProperties: TextProperties
   let maxCount: Int?
@@ -46,12 +50,22 @@ internal class EditState {
   var location: String.Index
   
   init(prompt: String,
+       promptPrefix: String? = nil,
        maxCount: Int? = nil,
        promptProperties: TextProperties = TextProperties.none,
+       promptPrefixProperties: TextProperties = TextProperties.none,
        readProperties: TextProperties = TextProperties.none,
        parenProperties: TextProperties = TextProperties.none) {
     self.prompt = prompt
+    self.promptPrefix = promptPrefix
+    self.fullPrompt = if let promptPrefix { "\(promptPrefix) \(prompt)" } else { prompt }
     self.promptProperties = promptProperties
+    self.promptPrefixProperties = promptPrefixProperties
+    self.fullText = if let promptPrefix {
+        "\(promptPrefixProperties.apply(to: promptPrefix)) \(promptProperties.apply(to: prompt))"
+    } else {
+        promptProperties.apply(to: prompt)
+    }
     self.readProperties = readProperties
     self.parenProperties = parenProperties
     self.maxCount = maxCount
@@ -60,7 +74,7 @@ internal class EditState {
   }
   
   var cursorWidth: Int {
-    return self.cursorPosition + self.prompt.count
+    return self.cursorPosition + self.fullPrompt.count
   }
   
   var cursorPosition: Int {
