@@ -47,20 +47,12 @@ let package = Package(
   ],
   products: [
     .library(name: "CommandLineKit", targets: ["CommandLineKit"]),
-    .executable(name: "CommandLineKitDemo", targets: ["CommandLineKitDemo"])
   ],
   dependencies: [
   ],
   targets: [
     .target(name: "CommandLineKit",
-            dependencies: [],
-            exclude: ["Info.plist"]),
-    .executableTarget(name: "CommandLineKitDemo",
-                      dependencies: ["CommandLineKit"],
-                      exclude: []),
-    .testTarget(name: "CommandLineKitTests",
-                dependencies: ["CommandLineKit"],
-                exclude: ["Info.plist"])
+            dependencies: []),
   ],
   swiftLanguageVersions: [.v5]
 )
