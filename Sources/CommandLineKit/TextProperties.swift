@@ -44,6 +44,7 @@ public struct TextProperties: Hashable {
   let textStyles: Set<TextStyle>
   
   public static let none = TextProperties()
+  public static let bold = TextProperties(styles: .bold)
   
   public init(textColor: TextColor? = nil,
               backgroundColor: BackgroundColor? = nil,
@@ -51,6 +52,14 @@ public struct TextProperties: Hashable {
     self.textColor = textColor
     self.backgroundColor = backgroundColor
     self.textStyles = textStyles
+  }
+
+  public init(fg: TextColor? = nil,
+              bg: BackgroundColor? = nil,
+              styles: TextStyle...) {
+    self.textColor = fg
+    self.backgroundColor = bg
+    self.textStyles = Set(styles)
   }
   
   public init(_ tcolor: TextColor? = nil,
